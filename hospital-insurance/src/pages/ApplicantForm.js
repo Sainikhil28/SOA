@@ -76,7 +76,7 @@ const ApplicantForm = () => {
       const plans = getPlansByAge(age);
       const defaultPlan = plans[0];
 
-      const newMember = {
+      const newMember = { 
         ...memberInput,
         age,
         address,
