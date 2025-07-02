@@ -25,6 +25,8 @@ const ApplicantForm = () => {
   const [error, setError] = useState('');
   const [familyMembers, setFamilyMembers] = useState([]);
   const [memberInput, setMemberInput] = useState({ name: '', gender: '', phoneNo: '', proofId: '', relationship: '' });
+  const [agreed, setAgreed] = useState(false);
+  const [showModal, setShowModal] = useState(true);
 
   const fetchDetails = async (proofId) => {
     const res = await axios.get(`http://localhost:5000/api/proof/${proofId}`);
@@ -106,34 +108,64 @@ const ApplicantForm = () => {
     );
   };
 
-  const totalAmount = (applicant?.amount || 0) + familyMembers.reduce((sum, m) => sum + m.amount, 0);
+  const netAmount = (applicant?.amount || 0) + familyMembers.reduce((sum, m) => sum + m.amount, 0);
+  const gst = netAmount * 0.18;
+  const totalWithGST = netAmount + gst;
 
   return (
     <div className="container mt-5">
+      {/* Modal for Terms */}
+      {showModal && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Health Insurance Terms & Conditions</h5>
+              </div>
+              <div className="modal-body">
+                <p><strong>Section 80D of the Income Tax Act:</strong></p>
+                <ul>
+                  <li>Deduction of up to ₹25,000/year for health insurance premiums.</li>
+                  <li>Up to ₹50,000/year for senior citizens (age 60+).</li>
+                  <li>Includes ₹5,000 for preventive health checkups.</li>
+                </ul>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-primary" onClick={() => { setAgreed(true); setShowModal(false); }}>
+                  I Agree & Proceed
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h3>Applicant Insurance Form</h3>
+
+      {!agreed && <p className="text-danger">⚠️ Please accept the terms to continue.</p>}
 
       <div className="row mb-3">
         <div className="col-md-3">
           <label>Name</label>
-          <input className="form-control" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+          <input className="form-control" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} disabled={!agreed} />
         </div>
         <div className="col-md-3">
           <label>Gender</label>
-          <select className="form-control" value={formData.gender} onChange={e => setFormData({ ...formData, gender: e.target.value })}>
+          <select className="form-control" value={formData.gender} onChange={e => setFormData({ ...formData, gender: e.target.value })} disabled={!agreed}>
             <option value="">Select</option><option>Male</option><option>Female</option><option>Other</option>
           </select>
         </div>
         <div className="col-md-3">
           <label>Phone No</label>
-          <input className="form-control" value={formData.phoneNo} onChange={e => setFormData({ ...formData, phoneNo: e.target.value })} />
+          <input className="form-control" value={formData.phoneNo} onChange={e => setFormData({ ...formData, phoneNo: e.target.value })} disabled={!agreed} />
         </div>
         <div className="col-md-3">
           <label>Proof ID</label>
-          <input className="form-control" value={proofId} onChange={e => setProofId(e.target.value)} />
+          <input className="form-control" value={proofId} onChange={e => setProofId(e.target.value)} disabled={!agreed} />
         </div>
       </div>
 
-      <button className="btn btn-primary mb-3" onClick={handleFetchApplicant}>Fetch Applicant Details</button>
+      <button className="btn btn-primary mb-3" onClick={handleFetchApplicant} disabled={!agreed}>Fetch Applicant Details</button>
       {error && <div className="alert alert-danger">{error}</div>}
 
       {applicant && (
@@ -142,7 +174,7 @@ const ApplicantForm = () => {
           <p><strong>Name:</strong> {formData.name}</p>
           <p><strong>Gender:</strong> {formData.gender}</p>
           <p><strong>Phone:</strong> {formData.phoneNo}</p>
-          <p><strong>Proof ID:</strong> {applicant.proofId}</p> {/* ✅ ADDED LINE */}
+          <p><strong>Proof ID:</strong> {applicant.proofId}</p>
           <p><strong>Age:</strong> {applicant.age}</p>
           <p><strong>Address:</strong> {applicant.address}</p>
           <label><strong>Select Plan</strong></label>
@@ -155,6 +187,7 @@ const ApplicantForm = () => {
         </div>
       )}
 
+      {/* Family Member Form */}
       <h5>Add Family Member</h5>
       <div className="row mb-3">
         {['name', 'gender', 'phoneNo', 'proofId'].map((field, i) => (
@@ -217,7 +250,12 @@ const ApplicantForm = () => {
 
       {(applicant || familyMembers.length > 0) && (
         <div className="mt-4">
-          <h4>Total Insurance Amount: ₹{totalAmount}</h4>
+          <h4>Net Amount: ₹{netAmount}</h4>
+          <h5>+ GST (18%): ₹{gst.toFixed(2)}</h5>
+          <h4><strong>Total Payable: ₹{totalWithGST.toFixed(2)}</strong></h4>
+          <p className="text-muted mt-3">
+            💡 <strong>Income Tax Benefit (Sec 80D):</strong> You can claim up to ₹25,000 (₹50,000 for senior citizens) as tax deduction on health insurance premiums.
+          </p>
         </div>
       )}
     </div>
