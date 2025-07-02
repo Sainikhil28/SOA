@@ -36,7 +36,7 @@ const AdminDashboard = () => {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
 
-        <Link className="navbar-brand" to="/admin">Admin Dashboard</Link>
+        <Link className="navbar-brand" to="/admin">AdminDashboard</Link>
 
 
         <div className="collapse navbar-collapse">
