@@ -8,6 +8,7 @@ import SafePulseHealth from './pages/SafePulseHealth';
 import LifeBridge from './pages/LifeBridge';
 import CuraShield from './pages/CuraShield';
 import ApplicantForm from './pages/ApplicantForm';
+import SummaryPage from './pages/SummaryPage';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/admin/policy-details/LifeBridge" element={<LifeBridge />} />
         <Route path="/admin/policy-details/CuraShield" element={<CuraShield />} />
         <Route path="/admin/apply-policy" element={<ApplicantForm />} />
+        <Route path="/summary" element={<SummaryPage />} />
       </Routes>
     </Router>
   );
