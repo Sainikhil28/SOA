@@ -21,7 +21,6 @@ const ApplicantForm = () => {
   };
 
   const handleFetchApplicantDetails = () => {
-    // Simulated fetch based on proof ID
     const dummyData = {
       age: 28,
       address: 'Chennai, TN',
@@ -78,12 +77,23 @@ const ApplicantForm = () => {
   };
 
   const handleProceed = () => {
-    navigate('/summary', {
-      state: {
-        applicant,
-        familyMembers,
-      },
-    });
+    const terms = `Health Insurance Terms & Conditions:\n
+Section 80D of the Income Tax Act:
+- Deduction of up to ₹25,000/year for health insurance premiums.
+- Up to ₹50,000/year for senior citizens (age 60+).
+- Includes ₹5,000 for preventive health checkups.
+
+Click OK to agree and proceed.`;
+
+    const agreed = window.confirm(terms);
+    if (agreed) {
+      navigate('/summary', {
+        state: {
+          applicant,
+          familyMembers,
+        },
+      });
+    }
   };
 
   return (
