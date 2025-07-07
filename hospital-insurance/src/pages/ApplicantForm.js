@@ -20,21 +20,32 @@ const ApplicantForm = () => {
     setApplicant({ ...applicant, [e.target.name]: e.target.value });
   };
 
-  const handleFetchApplicantDetails = () => {
-    const dummyData = {
-      age: 28,
-      address: 'Chennai, TN',
-    };
-    const plan = dummyData.age < 30 ? 'Young Saver Plan' : 'Standard Life Plan';
-    const amount = dummyData.age < 30 ? 2000 : 3000;
+  const handleFetchApplicantDetails = async () => {
+    if (!applicant.proofId) {
+      alert('Please enter Proof ID first');
+      return;
+    }
 
-    setApplicant((prev) => ({
-      ...prev,
-      age: dummyData.age,
-      address: dummyData.address,
-      plan,
-      amount,
-    }));
+    try {
+      const response = await fetch(`http://localhost:5000/api/proof/${applicant.proofId}`);
+      if (!response.ok) throw new Error('Invalid Proof ID');
+
+      const data = await response.json();
+      const age = data.age;
+      const address = data.address;
+      const plan = age < 30 ? 'Young Saver Plan' : 'Standard Life Plan';
+      const amount = age < 30 ? 2000 : 3000;
+
+      setApplicant((prev) => ({
+        ...prev,
+        age,
+        address,
+        plan,
+        amount,
+      }));
+    } catch (error) {
+      alert('Error fetching applicant details: ' + error.message);
+    }
   };
 
   const handleFamilyMemberChange = (index, field, value) => {
@@ -43,24 +54,36 @@ const ApplicantForm = () => {
     setFamilyMembers(updated);
   };
 
-  const handleFetchFamilyMemberDetails = (index) => {
-    const dummyData = {
-      age: 45,
-      address: 'Coimbatore, TN',
-    };
-    const age = dummyData.age;
-    const plan = age < 30 ? 'Young Saver Plan' : age < 60 ? 'Standard Life Plan' : 'Senior Care Plan';
-    const amount = age < 30 ? 1500 : age < 60 ? 2500 : 4000;
+  const handleFetchFamilyMemberDetails = async (index) => {
+    const member = familyMembers[index];
 
-    const updated = [...familyMembers];
-    updated[index] = {
-      ...updated[index],
-      age,
-      address: dummyData.address,
-      plan,
-      amount,
-    };
-    setFamilyMembers(updated);
+    if (!member.proofId) {
+      alert('Enter Proof ID for family member');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/proof/${member.proofId}`);
+      if (!response.ok) throw new Error('Invalid Proof ID');
+
+      const data = await response.json();
+      const age = data.age;
+      const address = data.address;
+      const plan = age < 30 ? 'Young Saver Plan' : age < 60 ? 'Standard Life Plan' : 'Senior Care Plan';
+      const amount = age < 30 ? 1500 : age < 60 ? 2500 : 4000;
+
+      const updated = [...familyMembers];
+      updated[index] = {
+        ...updated[index],
+        age,
+        address,
+        plan,
+        amount,
+      };
+      setFamilyMembers(updated);
+    } catch (error) {
+      alert('Error fetching family member details: ' + error.message);
+    }
   };
 
   const addFamilyMember = () => {
@@ -135,7 +158,7 @@ Click OK to agree and proceed.`;
         )}
       </div>
 
-      {/* Family Members */}
+      {/* Family Members Section */}
       <div className="card p-3 mb-4">
         <h5>Family Members</h5>
         {familyMembers.map((member, index) => (
