@@ -3,36 +3,57 @@ import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
 
-    if (username === 'admin' && password === 'admin') {
-      navigate('/admin');
-    } else {
-      setError('Invalid credentials. Please try again.');
+    try {
+      const response = await fetch('http://192.168.25.56:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.token) {
+        // Store token and user info in localStorage (or sessionStorage)
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('user_id', data.user_id);
+
+        // Navigate to your main/dashboard page
+        navigate('/dashboard');
+      } else {
+        setError(data.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again later.');
     }
   };
 
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
-        <div className="col-md-4">
-          <div className="card shadow-lg p-3">
+        <div className="col-md-5">
+          <div className="card shadow-lg p-4">
             <div className="card-body">
-              <h3 className="text-center mb-4">Admin Login</h3>
+              <h3 className="text-center mb-4">Login</h3>
               <form onSubmit={handleLogin}>
                 <div className="mb-3">
-                  <label>Username</label>
+                  <label>Email</label>
                   <input
-                    type="text"
+                    type="email"
                     className="form-control"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
