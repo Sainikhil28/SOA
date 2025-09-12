@@ -9,6 +9,10 @@ import LifeBridge from './pages/LifeBridge';
 import CuraShield from './pages/CuraShield';
 import ApplicantForm from './pages/ApplicantForm';
 import SummaryPage from './pages/SummaryPage';
+import ResultPage from './pages/ResultPage';
+import DashboardAuth from './components/DashboardAuth';
+import DashboardPage from './components/DashboardPage';
+import LoadTestDashboard from './components/LoadTestDashboard';
 
 
 function App() {
@@ -25,6 +29,10 @@ function App() {
         <Route path="/admin/policy-details/CuraShield" element={<CuraShield />} />
         <Route path="/admin/apply-policy" element={<ApplicantForm />} />
         <Route path="/summary" element={<SummaryPage />} />
+        <Route path="/result" element={<ResultPage />} />
+         <Route path="/dashboard-auth" element={<DashboardAuth />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/load" element={<LoadTestDashboard />} />
       </Routes>
     </Router>
   );

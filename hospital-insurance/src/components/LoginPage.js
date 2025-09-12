@@ -12,30 +12,47 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
 
+    // Admin login
+    if (email === 'admin@gmail.com' && password === 'admin') {
+      localStorage.setItem('token', 'admin-token');
+      localStorage.setItem('username', 'Admin');
+      localStorage.setItem('user_id', 'admin');
+      navigate('/admin');
+      return;
+    }
+
     try {
-      const response = await fetch('http://192.168.25.56:5000/login', {
+      const payload = { email };
+
+      const response = await fetch('http://192.168.166.32:5000/service/verify_email', {
         method: 'POST',
         headers: {
+          'X-API-KEY': '0898c79d9edee1eaf79e1f97718ea84da47472f70884944ba1641b58ed24796c',
+          'X-CLIENT-SECRET': 'Sainikhil28',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
 
-      if (response.ok && data.token) {
-        // Store token and user info in localStorage (or sessionStorage)
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('user_id', data.user_id);
-
-        // Navigate to your main/dashboard page
-        navigate('/dashboard');
-      } else {
-        setError(data.message || 'Login failed. Please try again.');
+      if (!data.exists) {
+        setError('User not registered. Please sign up first.');
+        return;
       }
+
+      if (data.verified && data.status === 'active') {
+        localStorage.setItem('token', 'user-token');
+        localStorage.setItem('username', data.username || email);
+        localStorage.setItem('user_id', email);
+        navigate('/admin');
+      } else {
+        setError('Your account is inactive or not verified.');
+      }
+
     } catch (err) {
-      setError('Network error. Please try again later.');
+      console.error('Login error:', err);
+      setError('Something went wrong. Please try again.');
     }
   };
 
@@ -69,6 +86,9 @@ const LoginPage = () => {
                 </div>
                 {error && <div className="alert alert-danger">{error}</div>}
                 <button type="submit" className="btn btn-primary w-100">Login</button>
+
+                <button className="btn btn-secondary mt-3 w-100" onClick={() => navigate('/dashboard-auth')}>
+  Go to Dashboard</button>
               </form>
             </div>
           </div>

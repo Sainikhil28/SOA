@@ -1,3 +1,4 @@
+//Accounts and repay
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
@@ -80,7 +81,7 @@ const Summary = () => {
     }
 
     // Total
-    doc.setFontSize(12);
+    doc.setFontSize(9);
     doc.setTextColor(0);
     doc.text(
       `Total Insurance Plan Amount for Entire Family (Including GST): ₹${grandTotal}`,
@@ -128,9 +129,31 @@ const Summary = () => {
   };
 
   const handlePayNow = () => {
-    alert(`Proceeding to payment for ₹${grandTotal}`);
-    // Add your payment logic or navigation here
+  // if (!grandTotal || isNaN(grandTotal)) {
+  //   return alert('Invalid payment amount');
+  // }
+
+  const payload = {
+    email: 'sainikhil@gmail.com',
+    code: 'sainikil@paygate',
+    //amount: parseFloat(grandTotal), // send calculated amount
+    amount: parseFloat("100"), // send calculated amount,
+    applicant,
+    applicantGST,
+    applicantTotalWithGST,
+    familyDetails,
+    familyTotal,
+    grandTotal,
+
   };
+
+  const encoded = encodeURIComponent(btoa(JSON.stringify(payload))); // Base64 + URI encode
+  const returnUrl = `${window.location.origin}/result`;
+
+  // Redirect to payment page
+  window.location.href = `http://192.168.161.133:3000/payment/${encoded}?returnUrl=${encodeURIComponent(returnUrl)}`;
+};
+
 
   return (
     <div className="container mt-5">
